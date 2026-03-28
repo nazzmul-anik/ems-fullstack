@@ -1,22 +1,42 @@
 import React, { useEffect, useState } from 'react'
-import { listEmployees } from '../services/EmployeeService';
+import { deleteEmployee, listEmployees } from '../services/EmployeeService';
 import { useNavigate } from 'react-router-dom';
 
 const ListEmployeeComponents = () => {
    
     const [employees, setEmployees] = useState([]);
+    
+    
     useEffect(()=>{
+        getAllEmployee();
+    }, []);
+    
+    const getAllEmployee=()=>{
         listEmployees().then((response) => {
             setEmployees(response.data);
         }).catch(error=>{
             console.error(error);
         });
-    }, []);
+    }
+
 
     const navigator  = useNavigate();
 
     const addNewEmployee=()=>{
-        navigator('/add-employee')
+        navigator('/add-employee');
+    }
+
+    const updateEmployee=(id)=>{
+        navigator(`/edit-employee/${id}`);
+    }
+
+    const removeEmployee=(id)=>{
+        deleteEmployee(id)
+        .then((response)=>{
+            getAllEmployee();
+        }).catch(error=>{
+            console.error(error);
+        })
     }
 
   return (
@@ -30,6 +50,7 @@ const ListEmployeeComponents = () => {
                     <th>Employee First Name</th>
                     <th>Employee Last Name</th>
                     <th>Employee Email Id</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -41,6 +62,10 @@ const ListEmployeeComponents = () => {
                             <td>{employee.firstName}</td>
                             <td>{employee.lastName}</td>
                             <td>{employee.email}</td>
+                            <td>
+                                <button className='btn btn-info' onClick={()=>updateEmployee(employee.id)}>Update</button>
+                                <button style={{marginLeft: '10px'}} className='btn btn-danger' onClick={()=>removeEmployee(employee.id)}>Delete</button>
+                            </td>
                         </tr>
                     )
                 }
